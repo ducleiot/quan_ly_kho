@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Services\PayUService;
+use App\Models\Sale;//240429
 
 class SaleController extends AdminController
 {
@@ -35,6 +36,7 @@ class SaleController extends AdminController
                     DB::raw("CONCAT(u.last_name, ' ', u.first_name) as employee_name"),
                     DB::raw(" (SELECT SUM(total) FROM `sale_details` WHERE sale_id = itm.id) as total"),
                     "itm.note",
+                    "itm.pay_status",
                     "itm.created_at",
                     "itm.created_by",
                     "itm.updated_at",
@@ -96,7 +98,7 @@ class SaleController extends AdminController
                     "date" => $item->date,
                     "note" => $item->note,
                     "total" => Util::currency_format($item->total),
-
+                    "pay_status" => $item->pay_status,//240429
                     "created_at" => $item->created_at,
                     "updated_at" => $item->updated_at,
                     "created_by" => $created_by != null ? $created_by->last_name . " "  . $created_by->first_name : "",
@@ -506,4 +508,41 @@ class SaleController extends AdminController
             return(-1);
         }
     }
+    public function pay(Request $request, $id)
+    {
+        /* 240429 tmp code
+        $sale = Sale::findOrFail($id);
+        $totalAmount = $sale->totalAmount();
+        $paidAmount = $sale->totalPaidAmount();
+
+        $amount = $request->input('amount');
+        $remainingAmount = $totalAmount - $paidAmount;
+
+        if ($amount >= $remainingAmount) {
+            Payment::create([
+                'sale_id' => $sale->id,
+                'amount' => $remainingAmount,
+            ]);
+
+            $sale->update(['payment_status' => 'paid']);
+        } else {
+            Payment::create([
+                'sale_id' => $sale->id,
+                'amount' => $amount,
+            ]);
+
+            $remainingDebt = $remainingAmount - $amount;
+
+            Debt::updateOrCreate(
+                ['customer_id' => $sale->customer_id],
+                ['amount' => $remainingDebt]
+            );
+
+            $sale->update(['payment_status' => 'debt']);
+        }
+
+        return redirect()->back()->with('success', 'Thanh toán thành công.');
+        */
+    }
+
 }

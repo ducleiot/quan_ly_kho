@@ -57,6 +57,57 @@
         <img class="modal-content" id="img01">
         <div id="caption"></div>
     </div>
+    <!-- Trong view hiển thị thông tin đơn hàng -->
+
+<!-- Trong view hiển thị thông tin đơn hàng -->
+
+<div id="paymentModal" class="modal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nhập thông tin thanh toán</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('sales.pay',0) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Ngày mua</label>
+                        <label id="tmp1">tmp1</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Khách hàng</label>
+                        <label id="tmp2">tmp2</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Tổng tiền</label>
+                        <label id="tmp3">tmp3</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment_date">Ngày thanh toán:</label>
+                        <input type="date" name="payment_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Số tiền thanh toán:</label>
+                        <input type="number" name="amount" class="form-control" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="payment_image">Ảnh thanh toán:</label>
+                        <input type="file" name="payment_image" class="form-control-file">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Thanh toán</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 </div>
 
 
@@ -115,10 +166,18 @@
 	        formatters : {
 	            "commands" : function(column, row)
 	            {
-	              
+	               if (row.pay_status==0){
                     return "<button title='Xem' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-view\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-eye  \"></span></button> " +
                             "<button title='Sửa' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-edit  \"></span></button> " +
-	                       "<button title='Xóa' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash \"></span></button>";
+	                       "<button title='Xóa' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash \"></span></button>"+
+                           "<button title='Tạo Thanh Toán' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-pay\" data-row-id=\"" + row.id + "\"data-sale-id=\"" + row.id +"\"data-date=\""+row.date+
+                           "\"data-customer-name=\""+row.customer_name+ 
+                           "\"data-total=\""+row.total+"\"><span class=\"fa fa-money  \"></span></button> ";
+                   }else{
+                        return "<button title='Xem' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-view\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-eye  \"></span></button> " +
+                            "<button title='Sửa' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-edit  \"></span></button> " +
+                           "<button title='Xóa' type=\"button\" class=\"bootgrid-btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-trash \"></span></button>";
+                   }
 	                
 	            },
 	            "status" : function(column, row){
@@ -299,6 +358,25 @@
 	            });
 			}
 
+        });
+        $("#grid-data .command-pay").on("click", function(e)
+        {
+            
+            let saleId = this.getAttribute("data-sale-id");
+            let formAction = "{{ route('sales.pay', ':saleId') }}";
+            formAction = formAction.replace(':saleId', saleId);
+            let form = paymentModal.querySelector("form");
+            form.setAttribute("action", formAction);
+
+            let tmp1= document.getElementById('tmp1');
+            tmp1.innerHTML=this.getAttribute("data-date");
+
+            let tmp2=document.getElementById('tmp2');
+            tmp2.innerHTML=this.getAttribute("data-customer-name");       
+
+            let tmp3=document.getElementById('tmp3');
+            tmp3.innerHTML=this.getAttribute("data-total");
+            $(paymentModal).modal('show');
         });
 
     });

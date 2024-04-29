@@ -23,7 +23,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\QuantityController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\SaleController;
-
+use App\Http\Controllers\Admin\PaymentController;//240429
 
 use App\Util;
 
@@ -335,6 +335,11 @@ Route::prefix('admin/ql-mau-bao')->group(function () {
     Route::post('status', [ColorController::class, 'status']);
     Route::post('delete', [ColorController::class, 'delete']);
 });
+
+// routes/web.php 240229
+Route::post('payments/{orderId}', 'PaymentController@store')->name('payments.store');
+Route::post('sales/{id}/pay', [SaleController::class, 'pay'])->name('sales.pay');
+
 
 
 
